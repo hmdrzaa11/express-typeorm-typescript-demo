@@ -9,5 +9,7 @@ export default class ApiError extends Error {
     this.status = `${statusCode}`.startsWith("4") ? "failed" : "error";
     this.isOperational = true;
     Error.captureStackTrace(this, this.constructor);
+    Object.setPrototypeOf(this, ApiError.prototype); // do this to make the 'instanceof' check workable we point the
+    // __proto__ to the AppError.prototype
   }
 }
