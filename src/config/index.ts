@@ -6,4 +6,5 @@ export default {
   host: process.env.HOST || "localhost",
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN,
+  cookieExpires: process.env.COOKIE_EXPIRES_IN,
 };
