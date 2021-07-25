@@ -4,7 +4,7 @@ type RequestHandler = (
   req: Request,
   res: Response,
   next: NextFunction
-) => Promise<void>;
+) => Promise<void | Response<any, Record<string, any>>>;
 
 export default function (handler: RequestHandler) {
   return (req: Request, res: Response, next: NextFunction) => {
