@@ -4,6 +4,7 @@ import { User } from "../entity/User";
 import { catchAsync } from "../utils/catchAsync";
 import { ApiError } from "../utils/ApiError";
 import { parseValidationErrors } from "../utils/parseValidationErrors";
+import { sendToken } from "../utils/sendToken";
 
 export const signup = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -30,9 +31,6 @@ export const signup = catchAsync(
 
     //we can save the user
     await user.save();
-    res.status(201).json({
-      status: "success",
-      user,
-    });
+    sendToken(user, req, res, 201);
   }
 );

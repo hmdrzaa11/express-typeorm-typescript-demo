@@ -3,7 +3,7 @@ import express from "express";
 import config from "./config";
 import connectDb from "./db/connect";
 import usersRouter from "./routes/users.routes";
-import errorController from "./controllers/errors.controller";
+import { globalErrorHandler } from "./controllers/errors.controller";
 
 let app = express();
 
@@ -12,7 +12,7 @@ app.use(express.json());
 app.use("/users", usersRouter);
 
 //global error handler
-app.use(errorController);
+app.use(globalErrorHandler);
 
 connectDb()
   .then(() => {

@@ -1,20 +1,53 @@
-import { Request, Response, NextFunction } from "express";
+import config from "../config";
+import { ErrorRequestHandler, Response } from "express";
 import { ApiError } from "../utils/ApiError";
-export default (
-  err: Error | ApiError,
-  req: Request,
-  res: Response,
-  next: NextFunction
+
+const errorsInDev = (err: any, res: Response) => {
+  res.status(err.statusCode).json({
+    message: err.message,
+    status: err.status,
+    err,
+  });
+};
+
+const duplicatedValues = (err: any, res: Response) => {
+  let [field, message] = err.detail.match(/\(([^\)]+)\)/g);
+  let error = new ApiError(`${field} : "${message}" already exists`, 400);
+  errorsInProd(error, res);
+};
+const errorsInProd = (err: ApiError, res: Response) => {
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
+};
+
+export const globalErrorHandler: ErrorRequestHandler = (
+  err,
+  req,
+  res,
+  next
 ) => {
-  if (err instanceof ApiError) {
-    return res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || "error";
+
+  //handle in development
+  if (config.env && config.env === "development") {
+    errorsInDev(err, res);
   } else {
-    return res.status(500).json({
-      status: "error",
-      message: "something went wrong",
-    });
+    //production
+
+    //custom errors
+    if (err.isOperational) {
+      errorsInProd(err, res);
+    }
+
+    //duplicated error
+    if (err.code === "23505") {
+      duplicatedValues(err, res);
+    }
+
+    //server error
+    errorsInProd(err, res);
   }
 };

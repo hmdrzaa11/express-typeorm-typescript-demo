@@ -4,8 +4,8 @@ POST http://127.0.0.1:8000/users/signup HTTP/1.1
 Content-Type: application/json
 
 {
-    "name":"werewolf",
-    "email":"wolf.com",
+    "name":"king",
+    "email":"king@king.com",
     "password":"ha141272",
     "passwordConfirm":"ha141272"
 }
