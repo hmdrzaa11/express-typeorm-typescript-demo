@@ -106,3 +106,22 @@ export let updatePassword = catchAsync(async (req, res, next) => {
     user: req.user,
   });
 });
+
+export let updateProfile = catchAsync(async (req, res, next) => {
+  let { password, passwordConfirm } = req.body;
+  if (password || passwordConfirm) {
+    return next(
+      new ApiError('for updating password use "update-password" endpoint', 400)
+    );
+  }
+  let { affected } = await User.update({ uuid: req.user.uuid }, req.body);
+  if (!affected) {
+    return next(new ApiError("user notfound", 404));
+  }
+
+  let updatedUser = await User.findOneOrFail({ uuid: req.user.uuid });
+  res.status(200).json({
+    status: "success",
+    user: updatedUser,
+  });
+});

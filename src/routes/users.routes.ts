@@ -11,4 +11,10 @@ router.patch(
   usersController.updatePassword
 );
 
+router.patch(
+  "/update-profile",
+  usersController.protectedRoutes,
+  usersController.updateProfile
+);
+
 export default router;
