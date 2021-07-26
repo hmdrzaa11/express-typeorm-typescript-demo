@@ -27,6 +27,11 @@ const handleEntityNotFound = (err: any, res: Response) => {
   errorsInProd(error, res);
 };
 
+const handleJwtError = (err: any, res: Response) => {
+  let error = new ApiError("invalid token", 401);
+  errorsInProd(error, res);
+};
+
 export const globalErrorHandler: ErrorRequestHandler = (
   err,
   req,
@@ -56,6 +61,12 @@ export const globalErrorHandler: ErrorRequestHandler = (
 
     if (err.name === "EntityNotFound") {
       handleEntityNotFound(err, res);
+    }
+
+    //invalid jwt token
+
+    if (err.name === "JsonWebTokenError") {
+      handleJwtError(err, res);
     }
 
     //server error
