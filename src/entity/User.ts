@@ -30,6 +30,9 @@ export class User extends Model {
   @Column({ type: "boolean", default: true })
   isActive: boolean;
 
+  @Column({ type: "timestamp", nullable: true })
+  passwordChangedAt: Date;
+
   async hashPassword(rawPass: string) {
     let hash = await bcrypt.hash(rawPass, 12);
     this.password = hash;
@@ -38,6 +41,17 @@ export class User extends Model {
   @BeforeInsert()
   async hashBeforeInsert() {
     await this.hashPassword(this.password);
+  }
+
+  async comparePassword(rawPassword: string): Promise<boolean> {
+    return await bcrypt.compare(rawPassword, this.password);
+  }
+
+  isPasswordRecentlyChanged(iat: number) {
+    if (!this.passwordChangedAt) return false;
+    console.log(this.passwordChangedAt, iat);
+    let passwordChangedAt = this.passwordChangedAt.getTime() / 1000;
+    return passwordChangedAt > iat;
   }
 
   toJSON() {

@@ -4,8 +4,28 @@ POST http://127.0.0.1:8000/users/signup HTTP/1.1
 Content-Type: application/json
 
 {
-    "name":"king",
-    "email":"king@king.com",
+    "name":"weeler",
+    "email":"weeler@king.com",
     "password":"ha141272",
     "passwordConfirm":"ha141272"
 }
+
+
+#### SIGN IN USERS
+
+POST http://127.0.0.1:8000/users/signin HTTP/1.1
+Content-Type: application/json
+
+{
+
+    "email":"weeler@king.com",
+    "password":"ha141272"
+
+}
+
+#### SIGN IN USERS
+
+PATCH http://127.0.0.1:8000/users/change-password HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjM2YjgwMTZlLTZiYTAtNDdmZi05YTFmLWYxMTFjMjQxMzQ1YiIsImlhdCI6MTYyNzMyMDI1MiwiZXhwIjoxNjM1MDk2MjUyfQ.jLe0WbRS5vk8D6b-XrX4luf61J84Gzq6jc-w6_0e-L4
+
