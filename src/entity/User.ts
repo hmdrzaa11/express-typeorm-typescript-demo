@@ -1,4 +1,4 @@
-import { Column, Entity, BeforeInsert } from "typeorm";
+import { Column, Entity, BeforeInsert, BeforeUpdate } from "typeorm";
 import { IsEmail, Length, IsNotEmpty, MinLength } from "class-validator";
 import bcrypt from "bcryptjs";
 
@@ -18,7 +18,7 @@ export class User extends Model {
 
   @IsNotEmpty()
   @MinLength(8, { message: "password must be at least 8 characters long" })
-  @Column({ type: "varchar", select: false })
+  @Column({ type: "varchar" })
   password: string;
 
   @Column({ nullable: true })
@@ -43,13 +43,23 @@ export class User extends Model {
     await this.hashPassword(this.password);
   }
 
-  async comparePassword(rawPassword: string): Promise<boolean> {
-    return await bcrypt.compare(rawPassword, this.password);
+  @BeforeUpdate()
+  async hashBeforeUpdate() {
+    let userFromDB = await User.findOneOrFail(this.id);
+    let isChanged = userFromDB.password !== this.password;
+    if (!isChanged) return;
+    await this.hashPassword(this.password);
+  }
+
+  async comparePassword(
+    rawPassword: string,
+    hashPassword: string
+  ): Promise<boolean> {
+    return await bcrypt.compare(rawPassword, hashPassword);
   }
 
   isPasswordRecentlyChanged(iat: number) {
     if (!this.passwordChangedAt) return false;
-    console.log(this.passwordChangedAt, iat);
     let passwordChangedAt = this.passwordChangedAt.getTime() / 1000;
     return passwordChangedAt > iat;
   }

@@ -50,7 +50,7 @@ export let signin = catchAsync(async (req, res, next) => {
   if (!user) return next(new ApiError("invalid  email or password", 404));
   //we call compare method on the instance
 
-  let isMatch = await user.comparePassword(password);
+  let isMatch = await user.comparePassword(password, user.password);
   if (!isMatch) return next(new ApiError("invalid  email or password", 404));
 
   //everything is good lets login users
@@ -85,12 +85,24 @@ export let protectedRoutes = catchAsync(async (req, res, next) => {
 });
 
 export let updatePassword = catchAsync(async (req, res, next) => {
-  let user = await User.findOneOrFail({
-    uuid: "36b8016e-6ba0-47ff-9a1f-f111c241345b",
-  });
-  user.passwordChangedAt = new Date();
+  let { oldPassword, password, passwordConfirm } = req.body;
+  if (!password || !passwordConfirm || !oldPassword)
+    return next(new ApiError("password and passwordConfirm are required", 400));
+  if (password !== passwordConfirm)
+    return next(new ApiError("password and passwordConfirm do not match", 400));
+  let user = await User.findOneOrFail({ uuid: req.user.uuid });
+  let isPasswordMatch = await req.user.comparePassword(
+    oldPassword,
+    user.password
+  );
+  if (!isPasswordMatch) return next(new ApiError("invalid password", 400));
+
+  user.password = password;
+
   await user.save();
+
   res.send({
-    user,
+    status: "success",
+    user: req.user,
   });
 });
