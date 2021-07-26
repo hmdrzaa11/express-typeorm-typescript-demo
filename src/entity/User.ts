@@ -1,5 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, BeforeInsert } from "typeorm";
 import { IsEmail, Length, IsNotEmpty, MinLength } from "class-validator";
+import bcrypt from "bcryptjs";
+
 import Model from "./Model";
 
 @Entity("users")
@@ -16,7 +18,7 @@ export class User extends Model {
 
   @IsNotEmpty()
   @MinLength(8, { message: "password must be at least 8 characters long" })
-  @Column({ type: "varchar" })
+  @Column({ type: "varchar", select: false })
   password: string;
 
   @Column({ nullable: true })
@@ -27,4 +29,19 @@ export class User extends Model {
 
   @Column({ type: "boolean", default: true })
   isActive: boolean;
+
+  async hashPassword(rawPass: string) {
+    let hash = await bcrypt.hash(rawPass, 12);
+    this.password = hash;
+  }
+
+  @BeforeInsert()
+  async hashBeforeInsert() {
+    await this.hashPassword(this.password);
+  }
+
+  toJSON() {
+    //override the "toJson" and undefined the password
+    return { ...this, password: undefined, id: undefined };
+  }
 }
