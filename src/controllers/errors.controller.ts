@@ -22,6 +22,11 @@ const errorsInProd = (err: ApiError, res: Response) => {
   });
 };
 
+const handleEntityNotFound = (err: any, res: Response) => {
+  let error = new ApiError("entity notfound", 404);
+  errorsInProd(error, res);
+};
+
 export const globalErrorHandler: ErrorRequestHandler = (
   err,
   req,
@@ -45,6 +50,12 @@ export const globalErrorHandler: ErrorRequestHandler = (
     //duplicated error
     if (err.code === "23505") {
       duplicatedValues(err, res);
+    }
+
+    //entity notfound
+
+    if (err.name === "EntityNotFound") {
+      handleEntityNotFound(err, res);
     }
 
     //server error
